@@ -64,7 +64,7 @@ rule combine_fas:
 rule combine_gtfs:
     input:
         tes = rules.consensus_te_fa_2_gtf.output,
-        genes = FTP.remote(config.get("GENE_GTF"))
+        genes = FTP.remote(config.get("GENE_GTF"),keep_local=True, immediate_close=True)
     output:
         temp("results/custom-genome/combined.gtf")
     log:
