@@ -1,7 +1,3 @@
-from snakemake.remote.FTP import RemoteProvider as FTPRemoteProvider
-
-FTP = FTPRemoteProvider()
-
 singularity: "docker://continuumio/miniconda3"
 configfile: "config/config.yaml"
 
@@ -61,10 +57,20 @@ rule combine_fas:
         cat {input.tes} {input.g} > {output} 2> {log}
         """
 
+rule get_gtf:
+    output:
+        "results/genes/genes.gtf.gz"
+    params:
+        uri = config.get("GENE_GTF")
+    shell:
+        """
+        wget -O {output} {params.uri}
+        """
+
 rule combine_gtfs:
     input:
         tes = rules.consensus_te_fa_2_gtf.output,
-        genes = FTP.remote(config.get("GENE_GTF"),keep_local=True, immediate_close=True)
+        genes = rules.get_gtf.output
     output:
         temp("results/custom-genome/combined.gtf")
     log:
